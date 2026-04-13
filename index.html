@@ -78,7 +78,6 @@
             100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
         }
 
-        /* Pannello Info più piccolo e adattabile */
         .info-panel {
             width: 800px; 
             max-width: 92vw;
@@ -103,7 +102,6 @@
             display: block;
         }
 
-        /* Correzione per i drop-zone */
         .drop-zone {
             position: absolute;
             width: 4.5%;
@@ -118,58 +116,110 @@
 
         .drop-zone.filled {
             border: 2px solid #16a34a;
-            background: rgba(22, 163, 74, 0.7);
+            background: rgba(22, 163, 74, 0.9);
             border-style: solid;
+            animation: success-bounce 0.5s ease;
+        }
+
+        @keyframes success-bounce {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.4); }
         }
 
         .drop-zone.error {
-            animation: shake-hard 0.5s ease-in-out;
-            border-color: #dc2626;
-            background: rgba(220, 38, 38, 0.3);
-            z-index: 1000; 
+            animation: shake-hard 0.4s ease-in-out, pulse-red 1.5s infinite;
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.4);
+            z-index: 200; 
         }
 
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Feedback Pop-up Bianco */
         .feedback-pop {
             position: absolute;
-            bottom: 120%;
+            bottom: 130%;
             left: 50%;
             transform: translateX(-50%);
-            background: #dc2626;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
+            background: #ffffff;
+            color: #451a03;
+            padding: 15px;
+            border-radius: 12px;
             font-size: 14px;
             font-weight: bold;
-            min-width: 220px;
-            max-width: 280px;
+            min-width: 280px;
             text-align: center;
-            z-index: 1100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            border: 1px solid #fff;
+            z-index: 500;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 3px solid #f59e0b;
+            pointer-events: auto;
+            animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Elementi trascinabili corretti per testi lunghi */
+        @keyframes pop-in {
+            from { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            to { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+
+        .feedback-pop::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: #f59e0b transparent transparent transparent;
+        }
+
+        .close-feedback {
+            display: block;
+            margin: 10px auto 0;
+            background: #f59e0b;
+            color: #ffffff;
+            padding: 6px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-feedback:hover {
+            background: #d97706;
+            transform: scale(1.05);
+        }
+
         .draggable-item {
-            padding: 10px 16px;
+            padding: 12px 18px;
             background: #fdf6e3;
             border: 2px solid #854d0e;
             cursor: grab;
-            margin: 4px;
+            margin: 6px;
             font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: 3px 3px 0px #854d0e;
+            font-size: 0.85rem;
+            box-shadow: 4px 4px 0px #854d0e;
             display: inline-block;
-            max-width: 100%; /* Permette al testo di fluire */
+            max-width: 320px;
             text-align: left;
-            border-radius: 6px;
+            border-radius: 8px;
             transition: all 0.2s;
-            line-height: 1.3;
+            line-height: 1.4;
+            color: #451a03;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
         }
 
         .draggable-item:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 5px 5px 0px #854d0e;
+            transform: translateY(-2px);
             background-color: #fff;
+            box-shadow: 6px 6px 0px #854d0e;
         }
 
         .nav-btn {
@@ -187,8 +237,8 @@
 
         @keyframes shake-hard {
             0%, 100% { transform: translate(-50%, -50%); }
-            10%, 30%, 50%, 70%, 90% { transform: translate(-55%, -50%); }
-            20%, 40%, 60%, 80% { transform: translate(-45%, -50%); }
+            20%, 60% { transform: translate(-58%, -50%); }
+            40%, 80% { transform: translate(-42%, -50%); }
         }
     </style>
 </head>
@@ -267,7 +317,7 @@
                 Trascina la descrizione dell'evento nel luogo corretto sulla mappa.
             </p>
         </div>
-        <div class="flex flex-wrap justify-center max-w-5xl gap-2 mb-4 p-3 bg-white/40 rounded-xl border border-amber-200/50" id="event-draggables"></div>
+        <div class="flex flex-wrap justify-center max-w-6xl gap-2 mb-4 p-3 bg-white/40 rounded-xl border border-amber-200/50" id="event-draggables"></div>
         <div class="map-container">
             <img src="https://i.postimg.cc/fTq64FXP/cartina-del-viaggio-di-ulisse.jpg" class="map-image" alt="Mappa del viaggio di Ulisse">
             <div id="event-dropzones"></div>
@@ -298,7 +348,6 @@
             id = parseInt(id); 
             const info = data[id];
             
-            document.getElementById('pTNum').innerText = `Tappa ${id}`;
             document.getElementById('pTNome').innerText = info.nome;
             document.getElementById('pTTesto').innerText = `"${info.desc}"`;
             
@@ -318,7 +367,6 @@
             document.getElementById('infoPanel').classList.add('active');
             document.getElementById('startJourney').classList.add('hidden');
             
-            // Scroll intelligente verso il pannello
             const elementPosition = document.getElementById('infoPanel').getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - 50;
             window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
@@ -346,7 +394,6 @@
             if (view === 'match-event') initMatching('event');
         }
 
-        // Setup marker esplorazione
         const exploreContainer = document.getElementById('explore-markers');
         Object.entries(data).forEach(([id, info]) => {
             const m = document.createElement('div');
@@ -363,7 +410,6 @@
             const dropContainer = document.getElementById(`${type}-dropzones`);
             dragContainer.innerHTML = ''; dropContainer.innerHTML = '';
             
-            // Mescola elementi
             const items = Object.entries(data).sort(() => Math.random() - 0.5);
             
             items.forEach(([id, info]) => {
@@ -374,7 +420,7 @@
                 item.dataset.id = id;
                 item.ondragstart = (e) => {
                     e.dataTransfer.setData('text', id);
-                    item.style.opacity = "0.5";
+                    item.style.opacity = "0.4";
                 };
                 item.ondragend = () => item.style.opacity = "1";
                 dragContainer.appendChild(item);
@@ -388,7 +434,11 @@
                     e.preventDefault();
                     const draggedId = e.dataTransfer.getData('text');
                     
+                    const oldPop = zone.querySelector('.feedback-pop');
+                    if(oldPop) oldPop.remove();
+
                     if (draggedId === id) {
+                        zone.classList.remove('error');
                         zone.classList.add('filled');
                         zone.innerHTML = `<span class="text-[10px] md:text-xs text-white font-bold">${id}</span>`;
                         const dragEl = Array.from(dragContainer.children).find(c => c.dataset.id === id);
@@ -397,12 +447,22 @@
                         zone.classList.add('error');
                         const pop = document.createElement('div');
                         pop.className = 'feedback-pop';
-                        pop.innerHTML = `⚠️ Qui si trova: ${info.nome}<br><button class="mt-2 bg-white text-red-600 px-2 py-1 rounded text-xs" onclick="this.parentElement.remove()">Ok</button>`;
+                        
+                        let feedbackContent = '';
+                        if(type === 'map') {
+                            feedbackContent = `In questa posizione c'è: <br><span class="text-amber-800 uppercase font-bold">${info.nome}</span>`;
+                        } else {
+                            feedbackContent = `In questa posizione è avvenuto: <br><span class="text-amber-800 italic font-serif">"${info.desc}"</span>`;
+                        }
+
+                        pop.innerHTML = `
+                            <div class="text-amber-600 font-black mb-1 tracking-wider">ATTENZIONE!</div>
+                            <div class="text-xs font-normal text-gray-800 mb-2 leading-tight px-2">
+                                ${feedbackContent}
+                            </div>
+                            <button class="close-feedback" onclick="this.parentElement.parentElement.classList.remove('error'); this.parentElement.remove(); event.stopPropagation();">OK</button>
+                        `;
                         zone.appendChild(pop);
-                        setTimeout(() => {
-                            zone.classList.remove('error');
-                            if(pop.parentNode) pop.remove();
-                        }, 3000);
                     }
                 };
                 dropContainer.appendChild(zone);
