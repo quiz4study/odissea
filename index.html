@@ -24,13 +24,12 @@
         .map-container {
             position: relative;
             display: inline-block;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            border: 8px solid #3d2b1f;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 10px solid #3d2b1f;
             border-radius: 4px;
             background-color: #e5d3b3;
             line-height: 0;
-            margin-bottom: 1.5rem;
-            max-width: 100%;
+            margin-bottom: 2rem;
         }
 
         .map-image {
@@ -42,8 +41,8 @@
 
         .marker {
             position: absolute;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             background-color: rgba(153, 27, 27, 0.9);
             border: 2px solid #fcd34d;
             border-radius: 50%;
@@ -55,47 +54,43 @@
             justify-content: center;
             color: #fff;
             font-weight: bold;
-            font-size: 12px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            font-size: 14px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
-        }
-
-        @media (max-width: 640px) {
-            .marker { width: 20px; height: 20px; font-size: 10px; border-width: 1px; }
         }
 
         .marker.active-marker {
             background-color: #16a34a;
-            transform: translate(-50%, -50%) scale(1.3);
-            box-shadow: 0 0 15px #16a34a;
+            transform: translate(-50%, -50%) scale(1.4);
+            box-shadow: 0 0 20px #16a34a;
             z-index: 50;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
+            70% { box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); }
             100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
         }
 
         .info-panel {
-            width: 800px; /* Ridotto da 1000px */
+            width: 1000px;
             max-width: 95vw;
             background-color: #fdf6e3;
             background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
-            border: 3px solid #854d0e;
+            border: 4px solid #854d0e;
             border-radius: 12px;
             margin-top: 1rem;
             display: none;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
-            animation: slideUp 0.4s ease-out;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             z-index: 100;
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .info-panel.active {
@@ -104,9 +99,9 @@
 
         .drop-zone {
             position: absolute;
-            width: 4.5%;
-            aspect-ratio: 1/1;
-            border: 2px dashed #854d0e;
+            width: 48px;
+            height: 48px;
+            border: 3px dashed #854d0e;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             background: rgba(255, 255, 255, 0.1);
@@ -115,9 +110,17 @@
         }
 
         .drop-zone.filled {
-            border: 2px solid #16a34a;
+            border: 3px solid #16a34a;
             background: rgba(22, 163, 74, 0.7);
             border-style: solid;
+            z-index: 20;
+        }
+
+        .drop-zone.error {
+            animation: shake-hard 0.5s ease-in-out;
+            border-color: #dc2626;
+            background: rgba(220, 38, 38, 0.3);
+            z-index: 1000; 
         }
 
         .feedback-pop {
@@ -127,39 +130,79 @@
             transform: translateX(-50%);
             background: #dc2626;
             color: white;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 16px;
             font-weight: bold;
-            min-width: 220px;
-            max-width: 280px;
+            white-space: normal;
+            min-width: 280px;
+            max-width: 350px;
             text-align: center;
+            line-height: 1.5;
             z-index: 1100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            border: 1px solid #fff;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            pointer-events: auto;
+            border: 2px solid #fff;
+            animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop-in {
+            from { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            to { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+
+        .feedback-pop::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: #dc2626 transparent transparent transparent;
+        }
+
+        .ok-btn {
+            margin-top: 12px;
+            background: white;
+            color: #dc2626;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
 
         .draggable-item {
-            padding: 10px 16px;
+            padding: 14px 20px;
             background: #fdf6e3;
-            border: 2px solid #854d0e;
+            border: 3px solid #854d0e;
             cursor: grab;
-            margin: 4px;
+            margin: 8px;
             font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: 3px 3px 0px #854d0e;
+            font-size: 1rem;
+            box-shadow: 5px 5px 0px #854d0e;
             display: inline-block;
+            max-width: 450px;
+            text-align: center;
             border-radius: 6px;
             transition: all 0.2s;
+            line-height: 1.2;
         }
 
-        .draggable-item:active { cursor: grabbing; }
+        .draggable-item:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 8px 8px 0px #854d0e;
+            background-color: #fff;
+        }
 
         .nav-btn {
             transition: all 0.2s;
             border-bottom: 3px solid transparent;
             color: #78350f;
-            white-space: nowrap;
         }
 
         .nav-btn.active {
@@ -167,19 +210,25 @@
             border-bottom: 3px solid #92400e;
             background: white;
         }
+
+        @keyframes shake-hard {
+            0%, 100% { transform: translate(-50%, -50%); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-58%, -50%); }
+            20%, 40%, 60%, 80% { transform: translate(-42%, -50%); }
+        }
     </style>
 </head>
-<body class="p-2 md:p-4 flex flex-col items-center">
+<body class="p-4 flex flex-col items-center">
 
-    <nav class="flex overflow-x-auto max-w-full gap-1 md:gap-4 mb-6 bg-amber-100 p-1 md:p-2 rounded-lg shadow-inner z-50">
-        <button onclick="switchView('explore')" id="btn-explore" class="nav-btn px-3 py-2 font-bold active text-xs md:text-sm">Esplora</button>
-        <button onclick="switchView('match-map')" id="btn-match-map" class="nav-btn px-3 py-2 font-bold text-xs md:text-sm">Trova Luogo</button>
-        <button onclick="switchView('match-event')" id="btn-match-event" class="nav-btn px-3 py-2 font-bold text-xs md:text-sm">Eventi</button>
+    <nav class="flex gap-2 md:gap-4 mb-8 bg-amber-100 p-2 rounded-lg shadow-inner z-50">
+        <button onclick="switchView('explore')" id="btn-explore" class="nav-btn px-4 py-2 font-bold active text-sm md:text-base">Esplorazione</button>
+        <button onclick="switchView('match-map')" id="btn-match-map" class="nav-btn px-4 py-2 font-bold text-sm md:text-base">Trova il Luogo</button>
+        <button onclick="switchView('match-event')" id="btn-match-event" class="nav-btn px-4 py-2 font-bold text-sm md:text-base">Associa Eventi</button>
     </nav>
 
-    <header class="text-center mb-4 px-2">
-        <h1 class="text-2xl md:text-4xl font-bold text-amber-900 mb-1 uppercase tracking-tight">Odissea</h1>
-        <p id="sub-title" class="text-amber-800 italic text-base md:text-lg">Esplora la mappa interattiva</p>
+    <header class="text-center mb-6">
+        <h1 class="text-3xl md:text-5xl font-bold text-amber-900 mb-2 uppercase tracking-tight">Odissea: Il Viaggio di Ulisse</h1>
+        <p id="sub-title" class="text-amber-800 italic text-xl">Esplora la mappa interattiva</p>
     </header>
 
     <!-- VISTA ESPLORAZIONE -->
@@ -189,61 +238,64 @@
             <div id="explore-markers"></div>
         </div>
 
-        <button id="startJourney" onclick="showInfoTappa(1)" class="bg-amber-800 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-amber-900 hover:scale-105 transition-all flex items-center gap-2 mb-4 text-sm md:text-base">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+        <button id="startJourney" onclick="showInfoTappa(1)" class="bg-amber-800 text-white px-10 py-4 rounded-full font-bold shadow-xl hover:bg-amber-900 hover:scale-105 transition-all flex items-center gap-3 mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
             Inizia il Viaggio
         </button>
 
         <div id="infoPanel" class="info-panel">
-            <div class="p-4 md:p-6">
-                <div class="flex justify-between items-start mb-3 border-b border-amber-200/50 pb-2">
-                    <div>
-                        <h2 id="pTNum" class="text-[10px] md:text-xs font-bold text-amber-700 uppercase tracking-widest">Tappa 1</h2>
-                        <h3 id="pTNome" class="text-xl md:text-2xl font-bold text-amber-900">Troia</h3>
+            <div class="p-6 md:p-10">
+                <div class="flex justify-between items-start mb-4 border-b-2 border-amber-200/50 pb-3">
+                    <div class="w-full flex items-center justify-between">
+                        <div>
+                            <h2 id="pTNum" class="text-xs md:text-sm font-bold text-amber-700 uppercase tracking-widest mb-1">Tappa 1</h2>
+                            <h3 id="pTNome" class="text-2xl md:text-3xl font-bold text-amber-900">Troia</h3>
+                        </div>
                     </div>
-                    <button onclick="hideInfoPanel()" class="text-2xl text-amber-900/40 hover:text-red-700">&times;</button>
+                    <button onclick="hideInfoPanel()" class="ml-6 text-3xl text-amber-900/40 hover:text-red-700 transition-colors">&times;</button>
                 </div>
                 
-                <div class="bg-white/50 p-3 md:p-5 rounded-lg border border-amber-100 mb-4 shadow-sm">
-                    <p id="pTTesto" class="text-gray-900 italic leading-snug text-base md:text-lg text-center font-serif"></p>
+                <div class="bg-white/40 p-4 md:p-8 rounded-xl border border-amber-100 mb-6 shadow-inner">
+                    <p id="pTTesto" class="text-gray-900 italic leading-relaxed text-xl md:text-2xl text-center font-serif"></p>
                 </div>
                 
-                <div class="flex justify-between items-center bg-amber-900/5 p-2 md:p-3 rounded-lg border border-amber-200/50">
-                    <button id="pBtnPrev" class="text-amber-900 font-bold flex items-center gap-1 hover:translate-x-[-3px] transition-all text-sm md:text-base">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                        Precedente
+                <div class="flex justify-between items-center bg-amber-900/5 p-4 rounded-lg border border-amber-200/50">
+                    <button id="pBtnPrev" class="text-amber-900 font-bold flex items-center gap-2 hover:translate-x-[-5px] transition-all text-base md:text-lg px-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        Indietro
                     </button>
                     
-                    <button id="pBtnNext" class="bg-amber-800 text-white px-5 py-2 rounded-md font-bold flex items-center gap-1 hover:bg-amber-900 hover:translate-x-[3px] transition-all shadow-md text-sm md:text-base">
-                        Prossima
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    <button id="pBtnNext" class="bg-amber-800 text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-amber-900 hover:translate-x-[5px] transition-all shadow-lg text-base md:text-lg">
+                        Avanti
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                     </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ALTRE SEZIONI (STESSA STRUTTURA) -->
+    <!-- VISTA TROVA IL LUOGO -->
     <section id="view-match-map" class="hidden w-full flex flex-col items-center">
-        <div class="mb-4 text-center max-w-2xl px-2">
-            <p class="text-amber-900 font-bold text-sm md:text-base bg-white/60 p-3 rounded-lg border border-amber-200">
-                Trascina il nome del luogo nel cerchio corretto sulla mappa.
+        <div class="mb-6 text-center max-w-2xl px-4">
+            <p class="text-amber-900 font-bold text-lg md:text-xl bg-white/60 p-4 rounded-lg border-2 border-amber-200">
+                Trascina il nome del luogo nella sua posizione corretta sulla mappa.
             </p>
         </div>
-        <div class="flex flex-wrap justify-center max-w-4xl gap-1 mb-4 p-3 bg-white/40 rounded-xl border border-amber-200/50" id="map-draggables"></div>
+        <div class="flex flex-wrap justify-center max-w-5xl gap-2 mb-8 p-6 bg-white/40 rounded-xl border-2 border-amber-200/50" id="map-draggables"></div>
         <div class="map-container">
             <img src="https://i.postimg.cc/fTq64FXP/cartina-del-viaggio-di-ulisse.jpg" class="map-image" alt="Mappa del viaggio di Ulisse">
             <div id="map-dropzones"></div>
         </div>
     </section>
 
+    <!-- VISTA ASSOCIA EVENTI -->
     <section id="view-match-event" class="hidden w-full flex flex-col items-center">
-        <div class="mb-4 text-center max-w-2xl px-2">
-            <p class="text-amber-900 font-bold text-sm md:text-base bg-white/60 p-3 rounded-lg border border-amber-200">
-                Associa la descrizione alla tappa corrispondente sulla mappa.
+        <div class="mb-6 text-center max-w-2xl px-4">
+            <p class="text-amber-900 font-bold text-lg md:text-xl bg-white/60 p-4 rounded-lg border-2 border-amber-200">
+                Trascina la descrizione dell'evento nella posizione corretta sulla mappa dove è avvenuto.
             </p>
         </div>
-        <div class="flex flex-wrap justify-center max-w-4xl gap-1 mb-4 p-3 bg-white/40 rounded-xl border border-amber-200/50" id="event-draggables"></div>
+        <div class="flex flex-wrap justify-center max-w-6xl gap-2 mb-8 p-6 bg-white/40 rounded-xl border-2 border-amber-200/50" id="event-draggables"></div>
         <div class="map-container">
             <img src="https://i.postimg.cc/fTq64FXP/cartina-del-viaggio-di-ulisse.jpg" class="map-image" alt="Mappa del viaggio di Ulisse">
             <div id="event-dropzones"></div>
@@ -270,8 +322,11 @@
             16: { nome: "Itaca", desc: "Ulisse torna a casa. Travestito da mendicante, prepara la vendetta contro i Proci.", pos: { top: 58.8, left: 66.9 } }
         };
 
+        let currentTappaId = null;
+
         function showInfoTappa(id) {
             id = parseInt(id); 
+            currentTappaId = id;
             const info = data[id];
             
             document.getElementById('pTNum').innerText = `Tappa ${id}`;
@@ -294,10 +349,7 @@
             document.getElementById('infoPanel').classList.add('active');
             document.getElementById('startJourney').classList.add('hidden');
             
-            const offset = 100;
-            const elementPosition = document.getElementById('infoPanel').getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - offset;
-            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+            if(window.innerWidth < 1000) document.getElementById('infoPanel').scrollIntoView({ behavior: 'smooth' });
         }
 
         function hideInfoPanel() {
@@ -314,8 +366,8 @@
             
             const subTitle = document.getElementById('sub-title');
             if(view === 'explore') subTitle.innerText = "Esplora la mappa interattiva";
-            else if(view === 'match-map') subTitle.innerText = "Trova il Luogo";
-            else if(view === 'match-event') subTitle.innerText = "Associa gli Eventi";
+            else if(view === 'match-map') subTitle.innerText = "Attività: Trova il Luogo";
+            else if(view === 'match-event') subTitle.innerText = "Attività: Associa Eventi";
 
             if (view !== 'explore') hideInfoPanel();
             if (view === 'match-map') initMatching('map');
@@ -342,11 +394,14 @@
             items.forEach(([id, info]) => {
                 const item = document.createElement('div');
                 item.className = 'draggable-item';
-                item.innerText = (type === 'map') ? info.nome : (info.desc.substring(0, 40) + "...");
-                item.title = info.desc;
+                item.innerText = (type === 'map') ? info.nome : info.desc;
                 item.draggable = true;
                 item.dataset.id = id;
-                item.ondragstart = (e) => e.dataTransfer.setData('text', id);
+                item.ondragstart = (e) => {
+                    e.dataTransfer.setData('text', id);
+                    item.style.opacity = "0.5";
+                };
+                item.ondragend = () => item.style.opacity = "1";
                 dragContainer.appendChild(item);
 
                 const zone = document.createElement('div');
@@ -357,17 +412,31 @@
                 zone.ondrop = (e) => {
                     e.preventDefault();
                     const draggedId = e.dataTransfer.getData('text');
+                    
+                    const oldPop = zone.querySelector('.feedback-pop');
+                    if(oldPop) oldPop.remove();
+                    zone.classList.remove('error');
+
                     if (draggedId === id) {
                         zone.classList.add('filled');
-                        zone.innerHTML = `<span class="text-[8px] md:text-xs text-white font-bold">${id}</span>`;
+                        zone.innerHTML = `<span class="text-sm text-white font-bold">${id}</span>`;
                         const dragEl = Array.from(dragContainer.children).find(c => c.dataset.id === id);
                         if(dragEl) dragEl.remove();
                     } else {
+                        zone.classList.add('error');
                         const pop = document.createElement('div');
                         pop.className = 'feedback-pop';
-                        pop.innerHTML = `⚠️ Qui si trova: ${info.nome}<br><button class="mt-2 bg-white text-red-600 px-2 py-1 rounded text-xs" onclick="this.parentElement.remove()">Chiudi</button>`;
+                        
+                        let message = (type === 'event') 
+                            ? `In questa posizione sulla mappa avvenne:<br><span class="block mt-2 font-normal italic">"${info.desc}"</span>`
+                            : `⚠️ Attenzione! In questa posizione sulla mappa si trova:<br><strong>${info.nome}</strong>`;
+                        
+                        pop.innerHTML = `
+                            <div>${message}</div>
+                            <button class="ok-btn" onclick="this.parentElement.parentElement.classList.remove('error'); this.parentElement.remove();">Ho capito</button>
+                        `;
+                        
                         zone.appendChild(pop);
-                        setTimeout(() => pop.remove(), 3000);
                     }
                 };
                 dropContainer.appendChild(zone);
