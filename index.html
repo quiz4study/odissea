@@ -158,6 +158,22 @@
             flex-direction: column;
         }
 
+        .score-panel {
+            background: #854d0e;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #5d360a;
+        }
+
+        #items-container {
+            position: relative;
+            min-height: 100px;
+        }
+
         .draggable-item {
             display: block;
             width: 100%;
@@ -173,16 +189,23 @@
             position: relative;
             z-index: 100;
             touch-action: none;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .draggable-item.is-dragging {
             position: fixed !important;
-            pointer-events: none !important; /* Fondamentale per far funzionare elementFromPoint */
+            pointer-events: none !important;
             box-shadow: 15px 15px 30px rgba(0,0,0,0.3);
             transform: scale(1.05);
             opacity: 0.9;
             background: #fff;
             z-index: 9999;
+            transition: none;
+        }
+
+        .draggable-item.returning {
+            transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1.0);
+            z-index: 50;
         }
 
         .draggable-item.correct {
@@ -190,6 +213,7 @@
             pointer-events: none;
             filter: grayscale(1);
             text-decoration: line-through;
+            margin-bottom: 10px;
         }
 
         .info-card {
@@ -199,13 +223,6 @@
             padding: 1.5rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             animation: fadeIn 0.3s ease-in;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #854d0e;
-            font-style: italic;
-            padding: 2rem;
         }
 
         @keyframes fadeIn {
@@ -285,7 +302,8 @@
     <div id="win-overlay" class="win-overlay" onclick="this.style.display='none'">
         <h2 class="text-5xl font-bold mb-4">VIAGGIO CONCLUSO!</h2>
         <p class="text-xl">Hai posizionato correttamente tutte le tappe dell'Odissea.</p>
-        <button class="mt-8 bg-amber-600 text-white px-10 py-3 rounded-full font-bold uppercase">Chiudi</button>
+        <div id="final-score-display" class="mt-4 text-3xl text-amber-400 font-bold"></div>
+        <button onclick="location.reload()" class="mt-8 bg-amber-600 text-white px-10 py-3 rounded-full font-bold uppercase hover:bg-amber-700">Riprova</button>
     </div>
 
     <script>
@@ -312,14 +330,23 @@
         let activeTappaId = null;
         let draggingElement = null;
         let dragOffset = { x: 0, y: 0 };
+        let originalPos = { x: 0, y: 0 };
         let toastTimeout = null;
+
+        // Gestione punteggio
+        let totalScore = 0;
+        let attemptsPerId = {}; // Traccia i tentativi per ogni ID in questa sessione
 
         function switchView(view) {
             currentView = view;
             activeTappaId = null;
+            totalScore = 0;
+            attemptsPerId = {};
+            
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.id === `btn-${view}`));
             document.querySelectorAll('.layer').forEach(l => l.classList.add('hidden'));
             document.getElementById(`layer-${view}`).classList.remove('hidden');
+            
             const instr = document.getElementById('view-instruction');
             const sidebarContent = document.getElementById('sidebar-content');
             sidebarContent.innerHTML = '';
@@ -331,7 +358,20 @@
             } else {
                 instr.innerText = "Trascina gli elementi verso il punto corretto sulla mappa.";
                 initMatchingGame(view);
+                updateScoreDisplay();
             }
+        }
+
+        function updateScoreDisplay() {
+            const sidebarContent = document.getElementById('sidebar-content');
+            let scoreDiv = document.getElementById('score-panel');
+            if (!scoreDiv) {
+                scoreDiv = document.createElement('div');
+                scoreDiv.id = 'score-panel';
+                scoreDiv.className = 'score-panel';
+                sidebarContent.prepend(scoreDiv);
+            }
+            scoreDiv.innerText = `Punteggio: ${totalScore.toLocaleString('it-IT')} / 16`;
         }
 
         function initExplore() {
@@ -351,13 +391,13 @@
         function renderSidebarExplore() {
             const container = document.getElementById('sidebar-content');
             if (!activeTappaId) {
-                container.innerHTML = `<div class="empty-state"><p class="text-3xl mb-4">🏛️</p><p>Seleziona un punto numerato sulla mappa.</p></div>`;
+                container.innerHTML = `<div class="empty-state py-10 text-center"><p class="text-3xl mb-4">🏛️</p><p class="text-amber-900 italic">Seleziona un punto numerato sulla mappa.</p></div>`;
                 return;
             }
             const info = data[activeTappaId.toString()];
             container.innerHTML = `
                 <div class="info-card">
-                    <span class="text-xs font-bold text-amber-700 uppercase">Tappa ${activeTappaId}</span>
+                    <span class="text-xs font-bold text-amber-700 uppercase tracking-widest">Tappa ${activeTappaId}</span>
                     <h3 class="text-3xl font-bold text-amber-900 mt-1">${info.nome}</h3>
                     <div class="border-y border-amber-100 py-6 my-6 italic text-xl text-amber-800">"${info.desc}"</div>
                     <div class="flex gap-4">
@@ -378,7 +418,10 @@
             const layer = document.getElementById(`layer-${type}`);
             const sidebarContent = document.getElementById('sidebar-content');
             layer.innerHTML = '';
-            sidebarContent.innerHTML = `<h4 class="text-amber-900 font-bold uppercase text-xs mb-4 text-center">Trascina gli elementi</h4><div id="items-container"></div>`;
+            sidebarContent.innerHTML = `
+                <div id="score-panel" class="score-panel">Punteggio: 0 / 16</div>
+                <h4 class="text-amber-900 font-bold uppercase text-xs mb-4 text-center tracking-widest">Trascina gli elementi</h4>
+                <div id="items-container"></div>`;
             const itemsContainer = document.getElementById('items-container');
 
             Object.entries(data).forEach(([id, info]) => {
@@ -388,6 +431,7 @@
                 z.style.left = info.left + '%';
                 z.dataset.id = id;
                 layer.appendChild(z);
+                attemptsPerId[id] = 0; // Inizializza tentativi
             });
 
             Object.keys(data).sort(() => Math.random() - 0.5).forEach(id => {
@@ -404,7 +448,11 @@
         function startDragging(e) {
             if (draggingElement) return;
             draggingElement = e.target;
+            
             const rect = draggingElement.getBoundingClientRect();
+            originalPos.x = rect.left;
+            originalPos.y = rect.top;
+            
             dragOffset.x = e.clientX - rect.left;
             dragOffset.y = e.clientY - rect.top;
 
@@ -415,8 +463,13 @@
 
             window.addEventListener('mousemove', handleDragging);
             window.addEventListener('mouseup', stopDragging);
-            window.addEventListener('touchmove', (ev) => { ev.preventDefault(); handleDragging(ev.touches[0]); }, {passive: false});
+            window.addEventListener('touchmove', handleTouchDragging, {passive: false});
             window.addEventListener('touchend', stopDragging);
+        }
+
+        function handleTouchDragging(ev) {
+            ev.preventDefault();
+            handleDragging(ev.touches[0]);
         }
 
         function handleDragging(e) {
@@ -424,10 +477,8 @@
             draggingElement.style.left = (e.clientX - dragOffset.x) + 'px';
             draggingElement.style.top = (e.clientY - dragOffset.y) + 'px';
 
-            // Pulisci classi temporanee dalle zone
             document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('target-correct', 'target-wrong'));
 
-            // Trova cosa c'è sotto il punto del mouse/tocco
             const target = document.elementFromPoint(e.clientX, e.clientY);
             const zone = target ? target.closest('.drop-zone') : null;
 
@@ -445,27 +496,58 @@
             
             const target = document.elementFromPoint(clientX, clientY);
             const zone = target ? target.closest('.drop-zone') : null;
+            const elementId = draggingElement.dataset.id;
 
             if (zone && !zone.classList.contains('filled')) {
-                if (zone.dataset.id === draggingElement.dataset.id) {
+                if (zone.dataset.id === elementId) {
+                    // SUCCESSO
+                    attemptsPerId[elementId]++; // Conta il tentativo decisivo
+                    
+                    // Logica Punteggio
+                    if (attemptsPerId[elementId] === 1) totalScore += 1;
+                    else if (attemptsPerId[elementId] === 2) totalScore += 0.5;
+                    
+                    updateScoreDisplay();
+
                     zone.classList.add('filled');
-                    zone.innerHTML = `<span class="text-white text-[10px] font-bold">${draggingElement.dataset.id}</span>`;
+                    zone.innerHTML = `<span class="text-white text-[10px] font-bold">${elementId}</span>`;
                     draggingElement.classList.replace('is-dragging', 'correct');
+                    draggingElement.style.position = '';
+                    draggingElement.style.left = '';
+                    draggingElement.style.top = '';
+                    draggingElement.style.width = '';
                     checkWin();
                 } else {
+                    // ERRORE
+                    attemptsPerId[elementId]++;
                     showError(`No, qui c'è <strong>${data[zone.dataset.id].nome}</strong>.`);
-                    draggingElement.classList.remove('is-dragging');
+                    returnToStart(draggingElement);
                 }
             } else {
-                draggingElement.classList.remove('is-dragging');
+                // RILASCIO NEL VUOTO
+                returnToStart(draggingElement);
             }
 
-            draggingElement.style.position = '';
-            draggingElement.style.width = '';
-            
             window.removeEventListener('mousemove', handleDragging);
             window.removeEventListener('mouseup', stopDragging);
+            window.removeEventListener('touchmove', handleTouchDragging);
+            window.removeEventListener('touchend', stopDragging);
             draggingElement = null;
+        }
+
+        function returnToStart(el) {
+            el.classList.add('returning');
+            el.style.left = originalPos.x + 'px';
+            el.style.top = originalPos.y + 'px';
+            
+            setTimeout(() => {
+                el.classList.remove('is-dragging', 'returning');
+                el.style.position = '';
+                el.style.left = '';
+                el.style.top = '';
+                el.style.width = '';
+                document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('target-correct', 'target-wrong'));
+            }, 300);
         }
 
         function showError(msg) {
@@ -478,7 +560,10 @@
 
         function checkWin() {
             const filled = document.querySelectorAll(`#layer-${currentView} .drop-zone.filled`).length;
-            if (filled === 16) document.getElementById('win-overlay').style.display = 'flex';
+            if (filled === 16) {
+                document.getElementById('final-score-display').innerText = `Punteggio Finale: ${totalScore.toLocaleString('it-IT')} / 16`;
+                document.getElementById('win-overlay').style.display = 'flex';
+            }
         }
 
         window.onload = () => switchView('explore');
